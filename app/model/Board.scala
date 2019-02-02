@@ -22,21 +22,26 @@ class Board(val row: Int, val column: Int) {
     true
   }
 
-  def in(point: Point): Boolean = point.x >= 0 && point.y >= 0 && point.x < column && point.y < row
+  def countBlocks(): Map[Int, Int] = cells.flatten
+    .filter(_ != 0)
+    .groupBy(identity)
+    .mapValues(_.length)
 
-  def valueOf(point: Point): Int = cells(point.x)(point.y)
+  private def in(point: Point): Boolean = point.x >= 0 && point.y >= 0 && point.x < column && point.y < row
 
-  def put(playerId: Int, point: Point) {
+  private def valueOf(point: Point): Int = cells(point.x)(point.y)
+
+  private def put(playerId: Int, point: Point) {
     cells(point.x)(point.y) = playerId
   }
 
-  def hasAdjoinedCells(playerId: Int, point: Point): Boolean = {
+  private def hasAdjoinedCells(playerId: Int, point: Point): Boolean = {
     Seq(point.left(), point.right(), point.up(), point.down())
       .filter(in)
       .exists(valueOf(_) == playerId)
   }
 
-  def touchedOnCorner(playerId: Int, point: Point): Boolean = {
+  private def touchedOnCorner(playerId: Int, point: Point): Boolean = {
     Seq(point.left().up(), point.left().down(), point.right().up(), point.right().down())
       .filter(in)
       .exists(valueOf(_) == playerId)
