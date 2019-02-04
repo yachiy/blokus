@@ -2,14 +2,15 @@ package model
 
 import scala.util.Random
 
-class Game(val playerIds: Seq[Int], val turnPlayerId: Int = 0, val turn: Int = 1, val board: Board = new Board) {
+class Game(val playerIds: Seq[Int], val turnPlayerId: Int = 0, val turn: Int = 1, val board: Board) {
   def start(): Game = {
     val order = Random.shuffle(playerIds)
     new Game(order, order.head, turn, board)
   }
 
   def play(leftTop: Point, block: Block): Game = {
-    if (board.accept(turnPlayerId, leftTop, block)) {
+    val put = board.put(turnPlayerId, leftTop, block)
+    if (board == put) {
       val turnPlayerIdIndex = playerIds.indexOf(turnPlayerId)
       new Game(
         playerIds,

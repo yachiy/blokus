@@ -1,25 +1,25 @@
 package model
 
-class Board() {
+class Board(val cells: Seq[Seq[Int]]) {
   private val ROW: Int = 14
   private val COLUMN: Int = 14
-  private val cells: Array[Array[Int]] = Array.ofDim(ROW, COLUMN)
 
-  def accept(playerId: Int, leftTop: Point, block: Block): Boolean = {
+  def put(playerId: Int, leftTop: Point, block: Block): Board = {
     require(leftTop.x >= 0 && leftTop.y >= 0)
     require(leftTop.x + block.column < COLUMN && leftTop.y + block.row < ROW)
 
     val pointsOnBoard = block.points.map(_ + leftTop)
     if (isValid(pointsOnBoard, playerId)) {
-      pointsOnBoard.foreach(put(playerId, _))
-      true
+      putPoint(playerId, pointsOnBoard)
     } else {
-      false
+      this
     }
   }
 
-  def put(playerId: Int, point: Point) {
-    cells(point.x)(point.y) = playerId
+  private def putPoint(playerId: Int, points: Seq[Point]): Board = {
+    val copy = cells
+    points.foreach(p => copy(p.x) updated(p.y, playerId))
+    new Board(copy)
   }
 
   private def isValid(points: Seq[Point], playerId: Int): Boolean = {
