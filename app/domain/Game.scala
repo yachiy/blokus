@@ -2,7 +2,7 @@ package domain
 
 import scala.util.Random
 
-class Game(val playerIds: Seq[Int], val turnPlayerId: Int = 0, val turnCount: Int = 1, passCount: Seq[Int], val board: Board) {
+class Game(val playerIds: Seq[Int], val turnPlayerId: Int = 0, val turnCount: Int = 1, val passCount: Seq[Int], val board: Board) {
   def start(): Game = {
     val order = Random.shuffle(playerIds)
     new Game(order, order.head, turnCount, Seq.fill(playerIds.size)(0), board)

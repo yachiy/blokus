@@ -7,6 +7,8 @@ case class Point(x: Int, y: Int) {
 
   def +(other: Point): Point = Point(x + other.x, y + other.y)
 
+  def -(other: Point): Point = Point(x - other.x, y - other.y)
+
   def left(): Point = Point(x - 1, y)
 
   def right(): Point = Point(x + 1, y)
