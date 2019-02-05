@@ -1,4 +1,4 @@
-package model
+package domain
 
 class Block(val row: Int, val column: Int, val points: Seq[Point]) {
   def rotateLeft(): Block = new Block(column, row, points.map(_.rotateLeft()))

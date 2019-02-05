@@ -1,4 +1,4 @@
-package model
+package domain
 
 case class Point(x: Int, y: Int) {
   def rotateLeft(): Point = Point(y, -x)

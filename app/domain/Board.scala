@@ -1,4 +1,4 @@
-package model
+package domain
 
 class Board(val cells: Seq[Seq[Int]]) {
   private val ROW: Int = 14
