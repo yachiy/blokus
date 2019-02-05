@@ -1,25 +1,19 @@
 package model
 
-class Board(val row: Int, val column: Int) {
-  private val cells: Array[Array[Int]] = Array.ofDim(row, column)
+class Board(val cells: Seq[Seq[Int]]) {
+  private val ROW: Int = 14
+  private val COLUMN: Int = 14
 
-  // FIXME 良い書き方教えてください
-  def accept(playerId: Int, leftTop: Point, block: Block): Boolean = {
+  def put(playerId: Int, leftTop: Point, block: Block): Board = {
     require(leftTop.x >= 0 && leftTop.y >= 0)
-    require(leftTop.x + block.column < column && leftTop.y + block.row < row)
+    require(leftTop.x + block.column < COLUMN && leftTop.y + block.row < ROW)
 
     val pointsOnBoard = block.points.map(_ + leftTop)
-    if (pointsOnBoard.exists(valueOf(_) != 0)) {
-      return false
+    if (isValid(pointsOnBoard, playerId)) {
+      putPoint(playerId, pointsOnBoard)
+    } else {
+      this
     }
-    if (pointsOnBoard.exists(hasAdjoinedCells(playerId, _))) {
-      return false
-    }
-    if (!pointsOnBoard.exists(touchedOnCorner(playerId, _))) {
-      return false
-    }
-    pointsOnBoard.foreach(put(playerId, _))
-    true
   }
 
   def countBlocks(): Map[Int, Int] = cells.flatten
@@ -27,12 +21,14 @@ class Board(val row: Int, val column: Int) {
     .groupBy(identity)
     .mapValues(_.length)
 
-  private def in(point: Point): Boolean = point.x >= 0 && point.y >= 0 && point.x < column && point.y < row
+  private def putPoint(playerId: Int, points: Seq[Point]): Board = {
+    val copy = cells
+    points.foreach(p => copy(p.x) updated(p.y, playerId))
+    new Board(copy)
+  }
 
-  private def valueOf(point: Point): Int = cells(point.x)(point.y)
-
-  private def put(playerId: Int, point: Point) {
-    cells(point.x)(point.y) = playerId
+  private def isValid(points: Seq[Point], playerId: Int): Boolean = {
+    !points.exists(valueOf(_) != 0) && !points.exists(hasAdjoinedCells(playerId, _)) && points.exists(touchedOnCorner(playerId, _))
   }
 
   private def hasAdjoinedCells(playerId: Int, point: Point): Boolean = {
@@ -43,7 +39,12 @@ class Board(val row: Int, val column: Int) {
 
   private def touchedOnCorner(playerId: Int, point: Point): Boolean = {
     Seq(point.left().up(), point.left().down(), point.right().up(), point.right().down())
-      .filter(in)
-      .exists(valueOf(_) == playerId)
+      .exists(p => isCorner(p) || valueOf(p) == playerId)
   }
+
+  private def in(point: Point): Boolean = point.x >= 0 && point.y >= 0 && point.x < COLUMN && point.y < ROW
+
+  private def isCorner(point: Point): Boolean = (point.x == -1 && (point.y == -1 || point.y == ROW)) || (point.x == COLUMN && (point.y == -1 || point.y == ROW))
+
+  private def valueOf(point: Point): Int = cells(point.x)(point.y)
 }
